@@ -1,14 +1,10 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-RUN docker-php-ext-install mysqli \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.* \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.* \
-    && a2enmod mpm_prefork \
-    && sed -ri 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
-    && sed -ri 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-available/000-default.conf
+RUN docker-php-ext-install mysqli
 
-COPY bacll_system/ /var/www/html/
+WORKDIR /app
+COPY bacll_system/ /app/
 
 EXPOSE 8080
 
-CMD ["apache2-foreground"]
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t /app"]
